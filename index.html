@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b1220">
+  <title>Loyal Qotation</title>
+  <link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="stylesheet" href="assets/vendor/bootstrap.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div>
+      <h1 id="brandName">Loyal Engineering SARL</h1>
+      <p>Loyal Qotation V1</p>
+    </div>
+    <div class="top-actions"><button class="icon-btn" id="themeToggle" title="Changer le thème">☾</button></div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-page="dashboard">Tableau de bord</button>
+    <button class="tab" data-page="new">+ Nouvelle Qotation</button>
+    <button class="tab" data-page="settings">⚙ Paramètres</button>
+  </nav>
+
+  <main>
+    <section id="dashboard" class="page active">
+      <div class="stats">
+        <div><span id="statTotal">0</span><small>Qotations</small></div>
+        <div><span id="statDraft">0</span><small>Brouillons</small></div>
+        <div><span id="statAccepted">0</span><small>Acceptées</small></div>
+        <div><span id="statAmount">$0.00</span><small>Total</small></div>
+      </div>
+      <div class="toolbar">
+        <input id="search" placeholder="Rechercher une Qotation ou un client...">
+        <button class="primary" id="newBtn">+ Nouvelle Qotation</button>
+      </div>
+      <div id="quoteList" class="quote-list"></div>
+    </section>
+
+    <section id="new" class="page">
+      <div class="section-head">
+        <div>
+          <h2 id="formTitle">Nouvelle Qotation</h2>
+          <p>Devise : USD ($)</p>
+        </div>
+        <button class="secondary" id="cancelEdit">Retour</button>
+      </div>
+
+      <form id="quoteForm">
+        <div class="card">
+          <h3>Informations du devis</h3>
+          <div class="grid">
+            <label>N° du devis<input id="quoteNo" readonly></label>
+            <label>Date<input id="quoteDate" type="date" required></label>
+            <label>Validité (jours)<input id="validity" type="number" min="1" value="15" required></label>
+            <label>Type de devis<select id="quoteType"><option value="Estimatif">Devis estimatif</option><option value="Définitif">Devis définitif</option></select></label>
+            <label>Statut<select id="status"><option>Brouillon</option><option>Envoyée</option><option>Acceptée</option><option>Refusée</option></select></label>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Projet et fournisseur</h3>
+          <div class="grid">
+            <label>Titre du projet<input id="projectTitle" placeholder="Ex. Mise à la terre" required></label>
+            <label>Fournisseur principal<input id="mainSupplier" value="Loyal Hardware"></label>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Informations du client</h3>
+          <div class="grid">
+            <label>Nom du client<input id="clientName" required></label>
+            <label>Adresse<input id="clientAddress"></label>
+            <label>Téléphone<input id="clientPhone"></label>
+            <label>Email<input id="clientEmail" type="email"></label>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Préparé par</h3>
+          <div class="grid">
+            <label>Nom complet<input id="preparerNameQuote"></label>
+            <label>Fonction<input id="preparerRoleQuote"></label>
+            <label>Téléphone<input id="preparerPhoneQuote"></label>
+          </div>
+        </div>
+        <div class="card">
+          <div class="row-between">
+            <h3>Articles et fournitures</h3>
+            <button type="button" class="secondary" id="addItem">+ Ajouter une ligne</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>N°</th><th>Réf.</th><th>Désignation</th><th>Spécification</th><th>Unité</th><th>Qté</th><th>Coût achat</th><th>Majoration %</th><th>P.U. vente</th><th>Marque</th><th>Fournisseur</th><th>Total vente</th><th></th></tr></thead>
+              <tbody id="items"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Résumé financier</h3>
+          <div class="grid totals">
+            <label>Transport / livraison (USD)<input id="transport" type="number" min="0" step="0.01" value="0"></label>
+            <label>Main-d'œuvre (USD)<input id="labor" type="number" min="0" step="0.01" value="0"></label>
+            <label>Remise (%)<input id="discountRate" type="number" min="0" max="100" step="0.01" value="0"></label>
+            <label>Taxes (%)<input id="taxRate" type="number" min="0" step="0.01" value="0"></label>
+            <label>Montant reçu / avance (USD)<input id="paidAmount" type="number" min="0" step="0.01" value="0"></label>
+            <label>Motif du paiement<input id="paymentNote" placeholder="Ex. Approvisionnement des matériels"></label>
+            <div class="total-box"><span>Sous-total vente</span><strong id="subtotal">$0.00</strong></div>
+            <div class="total-box"><span>Montant remise</span><strong id="discountAmount">$0.00</strong></div>
+            <div class="total-box"><span>Taxes</span><strong id="taxDisplay">$0.00</strong></div>
+            <div class="total-box"><span>Total après remise</span><strong id="afterDiscount">$0.00</strong></div>
+            <div class="total-box"><span>Montant reçu</span><strong id="paidDisplay">$0.00</strong></div>
+            <div class="total-box"><span>Solde restant</span><strong id="balanceDisplay">$0.00</strong></div>
+            <div class="total-box grand"><span>TOTAL À PAYER</span><strong id="grandTotal">$0.00</strong></div>
+          </div>
+        </div>
+
+        <div class="card internal-card">
+          <h3>Résumé interne — Loyal Engineering uniquement</h3>
+          <p class="hint">Ces montants ne sont jamais imprimés sur le devis remis au client.</p>
+          <div class="grid totals">
+            <div class="total-box"><span>Coût total fournisseur</span><strong id="internalCost">$0.00</strong></div>
+            <div class="total-box"><span>Majoration totale sur les articles</span><strong id="internalMarkup">$0.00</strong></div>
+            <div class="total-box"><span>Résultat brut estimé sur fournitures</span><strong id="internalProfit">$0.00</strong></div>
+          </div>
+        </div>
+        <div class="actions">
+          <button type="submit" class="primary">💾 Enregistrer la Qotation</button>
+          <button type="button" class="secondary" id="printCurrent">🖨 Imprimer / PDF</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="settings" class="page">
+      <div class="section-head"><div><h2>Paramètres</h2><p>Personnalise Loyal Qotation.</p></div></div>
+      <div class="card">
+        <h3>Entreprise</h3>
+        <label>Nom de l'entreprise<input id="companyName"></label>
+        <label>Adresse<input id="companyAddress"></label>
+        <div class="grid">
+          <label>Téléphone<input id="companyPhone"></label>
+          <label>Email<input id="companyEmail"></label>
+        </div>
+        <div class="grid">
+          <label>Nom du préparateur par défaut<input id="preparerName" placeholder="Nom complet"></label>
+          <label>Téléphone du préparateur<input id="preparerPhone" placeholder="+243 ..."></label>
+          <label>Fonction du préparateur<input id="preparerRole" placeholder="Ex. Responsable technique"></label>
+          <label>Fournisseur par défaut<input id="defaultSupplier" value="Loyal Hardware"></label>
+        </div>
+        <label>Logo
+          <input id="logoInput" type="file" accept="image/*">
+        </label>
+        <div class="logo-preview"><img id="logoPreview" alt="Logo"></div>
+        <button class="primary" id="saveSettings">Enregistrer les paramètres</button>
+      </div>
+      <div class="card">
+        <h3>Apparence</h3>
+        <div class="theme-choice">
+          <button class="secondary" data-theme="light">☀ Thème brillant</button>
+          <button class="secondary" data-theme="dark">☾ Thème sombre</button>
+        </div>
+      </div>
+      <div class="card security-card">
+        <h3>🔐 Code de déverrouillage</h3>
+        <p>Un seul code protège les actions sensibles de l'application.</p>
+        <label>Quand demander le code
+          <select id="pinLockMode">
+            <option value="immediate">À chaque ouverture</option>
+            <option value="5">Après 5 minutes d'inactivité</option>
+            <option value="15">Après 15 minutes d'inactivité</option>
+            <option value="30">Après 30 minutes d'inactivité</option>
+            <option value="60">Après 1 heure d'inactivité</option>
+            <option value="never">Jamais automatiquement</option>
+          </select>
+        </label>
+        <div class="grid">
+          <label>Code actuel<input id="oldPin" type="password" inputmode="numeric" maxlength="8"></label>
+          <label>Nouveau code<input id="newPin" type="password" inputmode="numeric" maxlength="8"></label>
+          <label>Confirmer le nouveau code<input id="confirmPin" type="password" inputmode="numeric" maxlength="8"></label>
+        </div>
+        <button class="primary" id="savePin">🔒 Enregistrer le code</button>
+        <p class="hint">Code de réinitialisation : <strong>0509</strong></p>
+      </div>
+      <div class="card backup-card">
+        <h3>💾 Sauvegarde des données</h3>
+        <p>Choisis un dossier de sauvegarde. Si le navigateur ne permet pas de choisir un dossier, un fichier JSON sera téléchargé.</p>
+        <div class="backup-actions">
+          <button class="primary" id="chooseBackupFolder">📁 Choisir le dossier</button>
+          <button class="secondary" id="backupNow">💾 Sauvegarder maintenant</button>
+          <button class="secondary" id="restoreBackup">♻ Restaurer une sauvegarde</button>
+        </div>
+        <p id="backupStatus" class="hint">Aucun dossier de sauvegarde sélectionné.</p>
+      </div>
+      <div class="card">
+        <h3>Devise</h3>
+        <p class="fixed-currency">USD ($) — devise unique de l'application</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
